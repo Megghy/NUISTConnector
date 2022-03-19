@@ -30,10 +30,6 @@ namespace NUISTConnector
             DomainComboBox.SelectedValue = Config.Instance.Domain;
             PasswordBox.Password = Config.Instance.Password;
 
-            notifyIcon = new();
-            notifyIcon.Icon = (System.Drawing.Icon)Resources["Icon"];
-            notifyIcon.ToolTipText = "NUIST Connector";
-
             if (CheckInfo(false))
                 LoginButton.IsEnabled = true;
 

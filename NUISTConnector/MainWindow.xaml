@@ -90,7 +90,7 @@
             </Grid>
         </GroupBox>
         <tb:TaskbarIcon IconSource="/NUISTConnector;component/Resources/Icon.ico"
-                        ToolTipText="hello world">
+                        ToolTipText="NUIST Connector">
             <tb:TaskbarIcon.ContextMenu>
                 <ContextMenu>
                     <MenuItem Header="登出"
