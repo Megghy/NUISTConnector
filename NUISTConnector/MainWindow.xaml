@@ -1,0 +1,106 @@
+﻿<Window x:Class="NUISTConnector.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:tb="http://www.hardcodet.net/taskbar"
+        xmlns:local="clr-namespace:NUISTConnector"
+        mc:Ignorable="d"
+        Title="NUIST Connector"
+        Height="330"
+        Width="498"
+        MinWidth="500"
+        MinHeight="330"
+        ResizeMode="NoResize">
+    <Grid Margin="0,0,0,-5">
+        <GroupBox Width="190"
+                  HorizontalAlignment="Left"
+                  Header="日志"
+                  Margin="5,0,0,5">
+            <RichTextBox Name="LogBox"
+                         IsReadOnly="True"
+                         Background="#FF6D6D6D" />
+        </GroupBox>
+        <GroupBox Margin="205,5,5,5"
+                  Header="设置">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="149*" />
+                    <RowDefinition Height="109*" />
+                </Grid.RowDefinitions>
+                <StackPanel Margin="0,0,0,5">
+                    <DockPanel Margin="0,5,0,0">
+                        <TextBlock Text="用户名" />
+                        <TextBox Name="UserNameBox"
+                                 Text="{Binding UserName, Mode=TwoWay}"
+                                 Width="200"
+                                 HorizontalAlignment="Right" />
+                    </DockPanel>
+                    <DockPanel Margin="0,5,0,0">
+                        <TextBlock Text="密码" />
+                        <TextBox Name="PasswordBox" 
+                                     Width="200"
+                                     HorizontalAlignment="Right"
+                                     Text="{Binding Password, Mode=TwoWay}"/>
+                    </DockPanel>
+                    <DockPanel Margin="0,5,0,0">
+                        <TextBlock Text="运营商" />
+                        <ComboBox Name="DomainComboBox" 
+                                  DisplayMemberPath="Key"
+                                  SelectedValuePath="Value"
+                                  Width="200"
+                                  HorizontalAlignment="Right"/>
+                    </DockPanel>
+                    <Button x:Name="SaveButton"
+                            Margin="0,5,0,0"
+                            Content="保存信息" 
+                            Click="SaveButton_Click"/>
+                    <Button Name="LoginButton"
+                            Margin="0,5,0,0"
+                            Content="登录"
+                            IsEnabled="False"
+                            Click="LoginButton_Click"/>
+                    <Button Name="LogoutButton"
+                            Margin="0,5,0,0"
+                            Content="退出登录"
+                            Background="#FFD6BA6E"
+                            IsEnabled="False" 
+                            Click="LogoutButton_Click"/>
+                </StackPanel>
+                <GroupBox Header="应用设置"
+                          Grid.Row="1">
+                    <StackPanel>
+                        <CheckBox Name="ShowNoticeBox"
+                                  Margin="0,5,0,0"
+                                  Content="显示系统通知"
+                                  IsChecked="{Binding ShowNotice, Mode=TwoWay}"
+                                  Click="CheckBox_Click"/>
+                        <CheckBox Name="AutoConnectBox" 
+                                  Margin="0,5,0,0"
+                                  Content="自动登陆"
+                                  IsChecked="{Binding AutoConnect, Mode=TwoWay}"
+                                  Click="CheckBox_Click"/>
+                        <CheckBox Margin="0,5,0,0"
+                                  Content="开机自启"
+                                  IsEnabled="False" />
+                        <Button Name="CleanLog" Margin="0,5,0,0"
+                                Content="清空日志" 
+                                Click="CleanLog_Click"/>
+                    </StackPanel>
+                </GroupBox>
+            </Grid>
+        </GroupBox>
+        <tb:TaskbarIcon IconSource="/NUISTConnector;component/Resources/Icon.ico"
+                        ToolTipText="hello world">
+            <tb:TaskbarIcon.ContextMenu>
+                <ContextMenu>
+                    <MenuItem Header="登出"
+                              Click="LogoutButton_Click" />
+                    <MenuItem Header="退出"
+                              Name="ExitButton"
+                              Click="ExitButton_Click" />
+                </ContextMenu>
+            </tb:TaskbarIcon.ContextMenu>
+        </tb:TaskbarIcon>
+    </Grid>
+</Window>
