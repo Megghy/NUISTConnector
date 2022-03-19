@@ -28,6 +28,7 @@ namespace NUISTConnector
 
             DomainComboBox.ItemsSource = NUISTMain.Domains;
             DomainComboBox.SelectedValue = Config.Instance.Domain;
+            PasswordBox.Password = Config.Instance.Password;
 
             notifyIcon = new();
             notifyIcon.Icon = (System.Drawing.Icon)Resources["Icon"];
@@ -98,7 +99,7 @@ namespace NUISTConnector
                 MessageBox.Show("未填写用户名");
                 return;
             }
-            if (string.IsNullOrEmpty(PasswordBox.Text))
+            if (string.IsNullOrEmpty(PasswordBox.Password))
             {
                 MessageBox.Show("未填写密码");
                 return;
@@ -109,6 +110,7 @@ namespace NUISTConnector
                 return;
             }
             Config.Instance.Domain = (NUISTDomain)DomainComboBox.SelectedValue;
+            Config.Instance.Password = PasswordBox.Password;
             Config.Instance.Save();
             AppendLog($"[Success] 已保存信息", NUISTMain.SuccessColor);
             if (Config.Instance.ShowNotice)

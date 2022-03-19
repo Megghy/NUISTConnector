@@ -38,10 +38,9 @@
                     </DockPanel>
                     <DockPanel Margin="0,5,0,0">
                         <TextBlock Text="密码" />
-                        <TextBox Name="PasswordBox" 
+                        <PasswordBox Name="PasswordBox" 
                                      Width="200"
-                                     HorizontalAlignment="Right"
-                                     Text="{Binding Password, Mode=TwoWay}"/>
+                                     HorizontalAlignment="Right"/>
                     </DockPanel>
                     <DockPanel Margin="0,5,0,0">
                         <TextBlock Text="运营商" />
