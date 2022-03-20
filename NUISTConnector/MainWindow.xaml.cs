@@ -1,6 +1,7 @@
 ﻿using Hardcodet.Wpf.TaskbarNotification;
 using System;
 using System.ComponentModel;
+using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -15,7 +16,10 @@ namespace NUISTConnector
     {
         public void Execute(object parameter)
         {
-            App.Current.Dispatcher.Invoke(() => App.Current.MainWindow.Visibility = Visibility.Visible);
+            App.Current.Dispatcher.Invoke(() =>
+            {
+                App.Current.MainWindow.Visibility = Visibility.Visible;
+            });
         }
 
         public bool CanExecute(object parameter)
@@ -44,7 +48,9 @@ namespace NUISTConnector
 
             DomainComboBox.ItemsSource = NUISTMain.Domains;
             DomainComboBox.SelectedValue = Config.Instance.Domain;
-            PasswordBox.Password = Config.Instance.Password;
+            PasswordBox.Password = string.IsNullOrEmpty(Config.Instance.Password) 
+                ? ""
+                : Config.Instance.PasswordInternal;
 
             notifyIcon = new();
             notifyIcon.Icon = Properties.Resources.notice_Icon;
@@ -68,7 +74,7 @@ namespace NUISTConnector
             if (CheckInfo(false))
                 LoginButton.IsEnabled = true;
 
-            NUISTMain.StartLoop();
+            Task.Run(NUISTMain.StartLoop);
         }
         protected override void OnClosing(CancelEventArgs e)
         {
@@ -78,12 +84,7 @@ namespace NUISTConnector
                 {
                     if (!NUISTMain.ShouldStop)
                     {
-                        string title = "NUIST Connector";
-                        string text = "已最小化到托盘";
-
-                        //show balloon with built-in icon
-                        notifyIcon.ShowBalloonTip(title, text, BalloonIcon.Info);
-                        //hide balloon
+                        notifyIcon.ShowBalloonTip("NUIST Connector", "已最小化到托盘", BalloonIcon.Info);
                         notifyIcon.HideBalloonTip();
                         Visibility = Visibility.Hidden;
                     }
@@ -105,6 +106,7 @@ namespace NUISTConnector
             run.Foreground = solidColorBrush;
             run.FontFamily = new System.Windows.Media.FontFamily("Consolas");
             (LogBox.Document.Blocks.LastBlock as Paragraph)?.Inlines.Add(run);
+            LogBox.ScrollToEnd();
         }
         public static bool CheckInfo(bool notice = true)
         {
@@ -147,20 +149,18 @@ namespace NUISTConnector
                 return;
             }
             Config.Instance.Domain = (NUISTDomain)DomainComboBox.SelectedValue;
-            Config.Instance.Password = PasswordBox.Password;
+            Config.Instance.Password = Convert.ToBase64String(Encoding.Default.GetBytes(PasswordBox.Password));
             Config.Instance.Save();
+
             AppendLog($"[Success] 已保存信息", NUISTMain.SuccessColor);
-            Task.Run(() =>
+            Dispatcher.Invoke(() =>
             {
                 if (Config.Instance.ShowNotice)
                 {
-                    string title = "NUIST Connector";
-                    string text = "已保存账号信息";
-                    App._window.notifyIcon.ShowBalloonTip(title, text, BalloonIcon.None);
+                    App._window.notifyIcon.ShowBalloonTip("NUIST Connector", "已保存账号信息", BalloonIcon.None);
                     App._window.notifyIcon.HideBalloonTip();
                 }
             });
-
         }
 
         private void LoginButton_Click(object sender, RoutedEventArgs e)
@@ -194,18 +194,13 @@ namespace NUISTConnector
         {
             Config.Instance.Save();
             AppendLog($"[Success] 已保存更改", NUISTMain.SuccessColor);
-            Task.Run(() =>
+            Dispatcher.Invoke(() =>
             {
-                Dispatcher.Invoke(() =>
+                if (Config.Instance.ShowNotice)
                 {
-                    if (Config.Instance.ShowNotice)
-                    {
-                        string title = "NUIST Connector";
-                        string text = "已保存更改";
-                        App._window.notifyIcon.ShowBalloonTip(title, text, BalloonIcon.None);
-                        App._window.notifyIcon.HideBalloonTip();
-                    }
-                });
+                    App._window.notifyIcon.ShowBalloonTip("NUIST Connector", "已保存更改", BalloonIcon.None);
+                    App._window.notifyIcon.HideBalloonTip();
+                }
             });
         }
 

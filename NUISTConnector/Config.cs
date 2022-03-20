@@ -1,7 +1,9 @@
 ﻿using System;
 using System.IO;
+using System.Text;
 using System.Text.Encodings.Web;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Text.Unicode;
 
 namespace NUISTConnector
@@ -31,6 +33,9 @@ namespace NUISTConnector
 
         public string UserName { get; set; }
         public string Password { get; set; }
+        [JsonIgnore]
+        public string PasswordInternal
+            => Encoding.Default.GetString(Convert.FromBase64String(Password));
         public NUISTDomain Domain { get; set; } = NUISTDomain.Unknown;
         public bool ShowNotice { get; set; } = true;
         public bool AutoConnect { get; set; } = true;

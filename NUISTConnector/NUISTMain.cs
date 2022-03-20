@@ -92,7 +92,7 @@ namespace NUISTConnector
                     ifautologin = "0",
                     pagesign = "thirdauth",
                     username = Config.Instance.UserName,
-                    password = Config.Instance.Password,
+                    password = Config.Instance.PasswordInternal,
                     usripadd = await GetIP()
                 }.Serialize(), Encoding.UTF8, "application/json");
                 var logoutRespone = await _client.PostAsync(URL_LOGOUT, logoutContent);
@@ -104,12 +104,7 @@ namespace NUISTConnector
                         {
                             await App.Current.Dispatcher.BeginInvoke(() =>
                             {
-                                string title = "NUIST Connector";
-                                string text = "已登出校园网";
-
-                                //show balloon with built-in icon
-                                App._window.notifyIcon.ShowBalloonTip(title, text, BalloonIcon.None);
-                                //hide balloon
+                                App._window.notifyIcon.ShowBalloonTip("NUIST Connector", "已登出校园网", BalloonIcon.Info);
                                 App._window.notifyIcon.HideBalloonTip();
                             });
                         }
@@ -149,7 +144,7 @@ namespace NUISTConnector
                         ifautologin = "0",
                         pagesign = "firstauth",
                         username = Config.Instance.UserName,
-                        password = Config.Instance.Password,
+                        password = Config.Instance.PasswordInternal,
                         usripadd = ip
                     }.Serialize(), Encoding.UTF8, "application/json");
                     var firstRespone = await _client.PostAsync(URL_LOGIN, firstContent);
@@ -164,7 +159,7 @@ namespace NUISTConnector
                                 ifautologin = "0",
                                 pagesign = "secondauth",
                                 username = Config.Instance.UserName,
-                                password = Config.Instance.Password,
+                                password = Config.Instance.PasswordInternal,
                                 usripadd = ip
                             }.Serialize(), Encoding.UTF8, "application/json");
                             var secondRespone = await _client.PostAsync(URL_LOGIN, secondContent);
@@ -176,12 +171,7 @@ namespace NUISTConnector
                                     {
                                         await App.Current.Dispatcher.BeginInvoke(() =>
                                         {
-                                            string title = "NUIST Connector";
-                                            string text = "已成功连接校园网";
-
-                                            //show balloon with built-in icon
-                                            App._window.notifyIcon.ShowBalloonTip(title, text, BalloonIcon.None);
-                                            //hide balloon
+                                            App._window.notifyIcon.ShowBalloonTip("NUIST Connector", "已成功连接校园网", BalloonIcon.Info);
                                             App._window.notifyIcon.HideBalloonTip();
                                         });
                                     }
@@ -190,13 +180,27 @@ namespace NUISTConnector
                                     return true;
                                 }
                                 else
+                                {
                                     Log($"[Error] 登陆失败. {secondNode["message"]}", ErrorColor);
+                                    await App.Current.Dispatcher.BeginInvoke(() =>
+                                    {
+                                        App._window.notifyIcon.ShowBalloonTip("NUIST Connector", $"登陆失败. {secondNode["message"]}", BalloonIcon.Error);
+                                        App._window.notifyIcon.HideBalloonTip();
+                                    });
+                                }
                             }
                             else
                                 Log($"[Error] 二步请求失败: {firstRespone.StatusCode}", ErrorColor);
                         }
                         else
+                        {
                             Log($"[Error] 登陆失败. {firstNode["message"]}", ErrorColor);
+                            await App.Current.Dispatcher.BeginInvoke(() =>
+                            {
+                                App._window.notifyIcon.ShowBalloonTip("NUIST Connector", $"登陆失败. {firstNode["message"]}", BalloonIcon.Error);
+                                App._window.notifyIcon.HideBalloonTip();
+                            });
+                        }
                     }
                     else
                         Log($"[Error] 一步请求失败: {firstRespone.StatusCode}", ErrorColor);
@@ -212,48 +216,44 @@ namespace NUISTConnector
             return false;
         }
         public static async Task<bool> IsConnected()
-            => (await _ping.SendPingAsync("baidu.com", 3000)).Status == IPStatus.Success;
-        public static void StartLoop()
+            => (await _ping.SendPingAsync("baidu.com", 1500)).Status == IPStatus.Success;
+        public static async void StartLoop()
         {
-            var w = App._window;
-            Task.Run(async () =>
+            if (await IsConnected())
             {
-                if (await IsConnected())
+                Log($"[Success] 已连接到网络", SuccessColor);
+                IsLoggedIn = true;
+            }
+            while (!ShouldStop)
+            {
+                if (Config.Instance.AutoConnect)
                 {
-                    Log($"[Success] 已连接到网络", SuccessColor);
-                    IsLoggedIn = true;
-                }
-                while (!ShouldStop)
-                {
-                    if (Config.Instance.AutoConnect)
+                    if (!IsLoggedIn && ManagedNativeWifi.NativeWifi.EnumerateConnectedNetworkSsids().Any(s => s.ToString() == "i-NUIST") && !await IsConnected())
                     {
-                        if (!IsLoggedIn && ManagedNativeWifi.NativeWifi.EnumerateConnectedNetworkSsids().Any(s => s.ToString() == "i-NUIST") && !await IsConnected())
+                        if (!Login().Result)
                         {
+                            Log($"30 秒后尝试重新连接");
+                            await Task.Delay(1000 * 30);
+                        }
+                    }
+                    else
+                    {
+                        if (!await IsConnected())
+                        {
+                            IsLoggedIn = false;
+                            Log($"似乎未连接到互联网, 尝试登陆");
                             if (!Login().Result)
                             {
                                 Log($"30 秒后尝试重新连接");
-                                Task.Delay(1000 * 30).Wait();
+                                await Task.Delay(1000 * 30);
                             }
                         }
                         else
-                        {
-                            if (!await IsConnected())
-                            {
-                                IsLoggedIn = false;
-                                Log($"似乎未连接到互联网, 尝试登陆");
-                                if (!Login().Result)
-                                {
-                                    Log($"30 秒后尝试重新连接");
-                                    Task.Delay(1000 * 30).Wait();
-                                }
-                            }
-                            else
-                                IsLoggedIn = true;
-                        }
+                            IsLoggedIn = true;
                     }
-                    Task.Delay(2000).Wait();
                 }
-            });
+                await Task.Delay(1000);
+            }
         }
     }
 }
