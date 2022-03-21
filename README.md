@@ -8,6 +8,8 @@
 
 用法的话大概已经够显眼了, 只要把账号输进去再保存就行, 点击关闭时会默认最小化到托盘
 
-由于wpf暂时还不支持裁剪, 打包成自包含之后有100多M, 所以就还请自己安装一个 [.Net 6](https://dotnet.microsoft.com/zh-cn/download/dotnet/thank-you/sdk-6.0.201-windows-x64-installer) 运行环境吧, 下载之后一直点下一步就行
+下载地址: [release](https://github.com/Megghy/NUISTConnector/releases) 或者 [这里](https://pan.suki.club/s/4zHHcywokqNTzYP)
 
-程序下载地址: [release](https://github.com/Megghy/NUISTConnector/releases) 或者 [这里](https://pan.suki.club/s/4zHHcywokqNTzYP)
+## 由于wpf暂时还不支持裁剪, 打包成自包含之后有100多M, 所以要运行的话还请自己安装一个 [.Net 6](https://dotnet.microsoft.com/zh-cn/download/dotnet/thank-you/sdk-6.0.201-windows-x64-installer) 运行环境吧, 下载之后一直点下一步安装就行
+
+
